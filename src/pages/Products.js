@@ -23,6 +23,7 @@ import Page from 'components/Page';
 import Scrollbar from 'components/Scrollbar';
 import SearchNotFound from 'components/SearchNotFound';
 import { filter } from 'lodash';
+import { nanoid } from 'nanoid';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import {
@@ -30,7 +31,6 @@ import {
 	ProductListToolbar,
 	ProductMoreMenu,
 } from 'sections/@dashboard/product';
-
 const TABLE_HEAD = [
 	{ id: 'name', label: 'Name', alignRight: false },
 	{ id: 'code', label: 'Code', alignRight: false },
@@ -82,12 +82,19 @@ function applySortFilter(array, comparator, query) {
 }
 
 const Products = () => {
-	const [page, setPage] = useState(1);
+	const [page, setPage] = useState(0);
+	const [rowsPerPage, setRowsPerPage] = useState(5);
+	const [count, setCount] = useState(5);
 
-	const fetchProducts = (page) =>
+	const fetchProducts = (page, size) =>
 		axios
-			.get(`http://127.0.0.1:8000/products/?page=${page}`)
-			.then((res) => res.data.results);
+			.get(
+				`http://127.0.0.1:8000/products/?page=${page + 1}&size=${size}`
+			)
+			.then((res) => ({
+				data: res.data.results,
+				count: res.data.count,
+			}));
 
 	const [order, setOrder] = useState('asc');
 
@@ -97,16 +104,18 @@ const Products = () => {
 
 	const [filterName, setFilterName] = useState('');
 
-	const [rowsPerPage, setRowsPerPage] = useState(5);
-
 	const [products, setProducts] = useState([]);
 
-	const { loading, error } = useQuery(['products', page], () => {
-		fetchProducts(page).then((res) => {
-			console.log(res);
-			setProducts(res);
-		});
-	});
+	const { loading, error } = useQuery(
+		['products', page, rowsPerPage],
+		() => {
+			fetchProducts(page, rowsPerPage).then((res) => {
+				setProducts([...products, ...res.data]);
+				setCount(res.count);
+			});
+		},
+		{ keepPreviousData: true }
+	);
 
 	const handleRequestSort = (event, property) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -155,15 +164,15 @@ const Products = () => {
 	};
 
 	const emptyRows =
-		page > 1 ? Math.max(1, (1 + page) * rowsPerPage - products.length) : 1;
+		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - products.length) : 0;
 
-	const filteredUsers = applySortFilter(
+	const filteredProducts = applySortFilter(
 		products,
 		getComparator(order, orderBy),
 		filterName
 	);
 
-	const isUserNotFound = filteredUsers.length === 0;
+	const isProductNotFound = filteredProducts.length === 0;
 
 	return (
 		<Page title='Products'>
@@ -210,7 +219,7 @@ const Products = () => {
 									onSelectAllClick={handleSelectAllClick}
 								/>
 								<TableBody>
-									{filteredUsers
+									{filteredProducts
 										.slice(
 											page * rowsPerPage,
 											page * rowsPerPage + rowsPerPage
@@ -231,11 +240,11 @@ const Products = () => {
 											} = row;
 											const isItemSelected =
 												selected.indexOf(name) !== -1;
-
 											return (
 												<TableRow
 													hover
-													key={_id}
+													key={nanoid()}
+													id={_id}
 													tabIndex={-1}
 													role='checkbox'
 													selected={isItemSelected}
@@ -322,12 +331,12 @@ const Products = () => {
 									)}
 								</TableBody>
 
-								{isUserNotFound && (
+								{isProductNotFound && (
 									<TableBody>
 										<TableRow>
 											<TableCell
 												align='center'
-												colSpan={6}
+												colSpan={12}
 												sx={{ py: 3 }}
 											>
 												<SearchNotFound
@@ -344,7 +353,7 @@ const Products = () => {
 					<TablePagination
 						rowsPerPageOptions={[5, 10, 25]}
 						component='div'
-						count={products.length}
+						count={count}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onPageChange={handleChangePage}

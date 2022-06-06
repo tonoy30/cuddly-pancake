@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter } from 'react-router-dom';
 import 'simplebar/src/simplebar.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 const queryClient = new QueryClient();
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<React.StrictMode>
@@ -15,6 +15,7 @@ root.render(
 			<BrowserRouter>
 				<QueryClientProvider client={queryClient}>
 					<App />
+					<ReactQueryDevtools initialIsOpen={true} />
 				</QueryClientProvider>
 			</BrowserRouter>
 		</HelmetProvider>
