@@ -13,6 +13,7 @@ const ProductBookOrReturnDialog = ({
 	steps,
 	handleClose,
 	handleStepperFinished,
+	handleStepperNext,
 	hasActions = false,
 }) => {
 	return (
@@ -30,6 +31,7 @@ const ProductBookOrReturnDialog = ({
 					<Container>
 						<HorizontalLinearStepper
 							steps={steps}
+							handleStepperNext={handleStepperNext}
 							handleStepperFinished={handleStepperFinished}
 						/>
 					</Container>

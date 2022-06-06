@@ -54,13 +54,13 @@ const BOOK_STEPS = [
 		id: '1',
 		title: 'Provide Product Booking Information',
 		isOptional: false,
-		componentName: 'Confirmation',
+		component: 'ProductBooking',
 	},
 	{
 		id: '2',
 		title: 'Confirm Product Booking',
 		isOptional: false,
-		componentName: 'Confirmation',
+		component: 'Confirmation',
 	},
 ];
 
@@ -69,13 +69,13 @@ const RETURN_STEPS = [
 		id: '1',
 		title: 'Provide Product Return Information',
 		isOptional: false,
-		componentName: 'Confirmation',
+		component: 'Confirmation',
 	},
 	{
 		id: '2',
 		title: 'Confirm Product Return',
 		isOptional: false,
-		componentName: 'Confirmation',
+		component: 'Confirmation',
 	},
 ];
 
@@ -437,6 +437,7 @@ const Products = () => {
 				handleClose={() => setOpenBooking(false)}
 				title={'Book a Product'}
 				steps={BOOK_STEPS}
+				handleStepperNext={() => console.log('handleStepperNext')}
 				handleStepperFinished={() => setOpenBooking(false)}
 			/>
 			<ProductBookOrReturnDialog
@@ -444,6 +445,7 @@ const Products = () => {
 				handleClose={() => setOpenReturn(false)}
 				title={'Return a Product'}
 				steps={RETURN_STEPS}
+				handleStepperNext={() => console.log('handleStepperNext')}
 				handleStepperFinished={() => setOpenReturn(false)}
 			/>
 		</Page>

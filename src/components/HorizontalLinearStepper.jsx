@@ -1,17 +1,59 @@
+import { Container, Stack } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
+import { useFormik } from 'formik';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
-import DynamicLoader from './DynamicLoader';
+import Confirmation from './Confirmation';
+import DateTimePicker from './DataTimePicker';
+const currencies = [
+	{
+		value: 'None',
+		label: 'None',
+	},
+	{
+		value: 'USD',
+		label: '$',
+	},
+	{
+		value: 'EUR',
+		label: '€',
+	},
+	{
+		value: 'BTC',
+		label: '฿',
+	},
+	{
+		value: 'JPY',
+		label: '¥',
+	},
+];
 
-const HorizontalLinearStepper = ({ steps, handleStepperFinished }) => {
+const HorizontalLinearStepper = ({
+	steps,
+	handleStepperNext,
+	handleStepperFinished,
+}) => {
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set());
-
+	const formik = useFormik({
+		initialValues: {
+			product: 'None',
+			from: '',
+			to: '',
+		},
+		onSubmit: (values) => {
+			alert(JSON.stringify(values, null, 2));
+		},
+	});
 	const isStepOptional = (step) => {
 		return step.isOptional;
 	};
@@ -29,6 +71,8 @@ const HorizontalLinearStepper = ({ steps, handleStepperFinished }) => {
 
 		setActiveStep((prevActiveStep) => prevActiveStep + 1);
 		setSkipped(newSkipped);
+		handleStepperNext();
+		console.log(formik.values);
 	};
 
 	const handleBack = () => {
@@ -85,9 +129,64 @@ const HorizontalLinearStepper = ({ steps, handleStepperFinished }) => {
 				</>
 			) : (
 				<>
-					<DynamicLoader
-						componentName={steps[activeStep].componentName}
-					/>
+					{steps[activeStep].component === 'ProductBooking' && (
+						<Box
+							component='form'
+							sx={{
+								paddingTop: '3rem',
+								'& .MuiTextField-root': { m: 1, width: '25ch' },
+							}}
+							noValidate
+							autoComplete='off'
+						>
+							<Container>
+								<FormControl fullWidth>
+									<InputLabel id='demo-simple-select-label'>
+										Product
+									</InputLabel>
+									<Select
+										labelId='demo-simple-select-label'
+										id='demo-simple-select'
+										value={formik.values.product}
+										label='Product'
+										name='product'
+										onChange={formik.handleChange}
+									>
+										{currencies.map((option) => (
+											<MenuItem
+												key={option.value}
+												value={option.value}
+											>
+												{option.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+
+								<Stack spacing={2} direction='row' mt={2}>
+									<DateTimePicker
+										name={'from'}
+										label={'From'}
+										value={formik.values.from}
+										onDateChange={(value) =>
+											formik.setFieldValue('from', value)
+										}
+									/>
+									<DateTimePicker
+										name={'to'}
+										label={'To'}
+										value={formik.values.to}
+										onDateChange={(value) =>
+											formik.setFieldValue('to', value)
+										}
+									/>
+								</Stack>
+							</Container>
+						</Box>
+					)}
+					{steps[activeStep].component === 'Confirmation' && (
+						<Confirmation />
+					)}
 					<Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
 						<Button
 							color='inherit'
