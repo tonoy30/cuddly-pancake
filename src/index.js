@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter } from 'react-router-dom';
 import 'simplebar/src/simplebar.css';
 import App from './App';
@@ -15,7 +14,6 @@ root.render(
 			<BrowserRouter>
 				<QueryClientProvider client={queryClient}>
 					<App />
-					<ReactQueryDevtools initialIsOpen={true} />
 				</QueryClientProvider>
 			</BrowserRouter>
 		</HelmetProvider>

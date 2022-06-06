@@ -47,6 +47,19 @@ const TABLE_HEAD = [
 	},
 	{ id: '' },
 ];
+function unique(items, key) {
+	const itemsMap = new Map();
+
+	items.forEach((item) => {
+		if (itemsMap.size === 0) {
+			itemsMap.set(item[key], item);
+		} else if (!itemsMap.has(item[key])) {
+			itemsMap.set(item[key], item);
+		}
+	});
+
+	return [...new Set(itemsMap.values())];
+}
 
 function descendingComparator(a, b, orderBy) {
 	if (b[orderBy] < a[orderBy]) {
@@ -106,11 +119,12 @@ const Products = () => {
 
 	const [products, setProducts] = useState([]);
 
-	const { loading, error } = useQuery(
+	const { isLoading, isError } = useQuery(
 		['products', page, rowsPerPage],
 		() => {
 			fetchProducts(page, rowsPerPage).then((res) => {
-				setProducts([...products, ...res.data]);
+				const newProducts = unique([...products, ...res.data], '_id');
+				setProducts(newProducts);
 				setCount(res.count);
 			});
 		},
@@ -194,13 +208,13 @@ const Products = () => {
 						filterName={filterName}
 						onFilterName={handleFilterByName}
 					/>
-					{error ? (
+					{isError ? (
 						<Alert severity='error'>
 							<AlertTitle>List Loading Error</AlertTitle>
-							{error}
+							{isError}
 						</Alert>
 					) : null}
-					{loading ? (
+					{isLoading ? (
 						<Box sx={{ width: '100%' }}>
 							<LinearProgress />
 						</Box>
@@ -305,9 +319,10 @@ const Products = () => {
 															max_durability}
 													</TableCell>
 													<TableCell align='left'>
-														{mileage
-															? mileage
-															: 'null'}
+														{mileage === null ||
+														mileage === 'undefined'
+															? 'null'
+															: mileage}
 													</TableCell>
 													<TableCell align='left'>
 														{price}
