@@ -2,7 +2,6 @@
 import {
 	Alert,
 	AlertTitle,
-	Avatar,
 	Box,
 	Button,
 	Card,
@@ -18,14 +17,14 @@ import {
 	Typography,
 } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import { sentenceCase } from 'change-case';
+import axios from 'axios';
 import Iconify from 'components/Iconify';
-import Label from 'components/Label';
 import Page from 'components/Page';
 import Scrollbar from 'components/Scrollbar';
 import SearchNotFound from 'components/SearchNotFound';
 import { filter } from 'lodash';
 import { useState } from 'react';
+import { useQuery } from 'react-query';
 import {
 	ProductListHead,
 	ProductListToolbar,
@@ -34,10 +33,18 @@ import {
 
 const TABLE_HEAD = [
 	{ id: 'name', label: 'Name', alignRight: false },
-	{ id: 'company', label: 'Company', alignRight: false },
-	{ id: 'role', label: 'Role', alignRight: false },
-	{ id: 'isVerified', label: 'Verified', alignRight: false },
-	{ id: 'status', label: 'Status', alignRight: false },
+	{ id: 'code', label: 'Code', alignRight: false },
+	{ id: 'type', label: 'Type', alignRight: false },
+	{ id: 'availability', label: 'Availability', alignRight: false },
+	{ id: 'needing_repair', label: 'Need To Repair', alignRight: false },
+	{ id: 'durability', label: 'Durability', alignRight: false },
+	{ id: 'mileage', label: 'Mileage', alignRight: false },
+	{ id: 'price', label: 'Price', alignRight: false },
+	{
+		id: 'minimum_rent_period',
+		label: 'Minimum Rent Period',
+		alignRight: false,
+	},
 	{ id: '' },
 ];
 
@@ -75,20 +82,31 @@ function applySortFilter(array, comparator, query) {
 }
 
 const Products = () => {
-	const PRODUCTS = [];
-	const error = null;
-	const loading = true;
-	const [page, setPage] = useState(0);
+	const [page, setPage] = useState(1);
+
+	const fetchProducts = (page) =>
+		axios
+			.get(`http://127.0.0.1:8000/products/?page=${page}`)
+			.then((res) => res.data.results);
 
 	const [order, setOrder] = useState('asc');
 
 	const [selected, setSelected] = useState([]);
 
-	const [orderBy, setOrderBy] = useState('name');
+	const [orderBy, setOrderBy] = useState('_id');
 
 	const [filterName, setFilterName] = useState('');
 
 	const [rowsPerPage, setRowsPerPage] = useState(5);
+
+	const [products, setProducts] = useState([]);
+
+	const { loading, error } = useQuery(['products', page], () => {
+		fetchProducts(page).then((res) => {
+			console.log(res);
+			setProducts(res);
+		});
+	});
 
 	const handleRequestSort = (event, property) => {
 		const isAsc = orderBy === property && order === 'asc';
@@ -98,7 +116,7 @@ const Products = () => {
 
 	const handleSelectAllClick = (event) => {
 		if (event.target.checked) {
-			const newSelecteds = PRODUCTS.map((n) => n.name);
+			const newSelecteds = products.map((n) => n.name);
 			setSelected(newSelecteds);
 			return;
 		}
@@ -137,10 +155,10 @@ const Products = () => {
 	};
 
 	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - PRODUCTS.length) : 0;
+		page > 1 ? Math.max(1, (1 + page) * rowsPerPage - products.length) : 1;
 
 	const filteredUsers = applySortFilter(
-		PRODUCTS,
+		products,
 		getComparator(order, orderBy),
 		filterName
 	);
@@ -186,7 +204,7 @@ const Products = () => {
 									order={order}
 									orderBy={orderBy}
 									headLabel={TABLE_HEAD}
-									rowCount={PRODUCTS.length}
+									rowCount={products.length}
 									numSelected={selected.length}
 									onRequestSort={handleRequestSort}
 									onSelectAllClick={handleSelectAllClick}
@@ -199,13 +217,17 @@ const Products = () => {
 										)
 										.map((row) => {
 											const {
-												id,
+												_id,
 												name,
-												role,
-												status,
-												company,
-												avatarUrl,
-												isVerified,
+												code,
+												availability,
+												durability,
+												max_durability,
+												mileage,
+												minimum_rent_period,
+												needing_repair,
+												price,
+												type,
 											} = row;
 											const isItemSelected =
 												selected.indexOf(name) !== -1;
@@ -213,7 +235,7 @@ const Products = () => {
 											return (
 												<TableRow
 													hover
-													key={id}
+													key={_id}
 													tabIndex={-1}
 													role='checkbox'
 													selected={isItemSelected}
@@ -244,10 +266,6 @@ const Products = () => {
 															alignItems='center'
 															spacing={2}
 														>
-															<Avatar
-																alt={name}
-																src={avatarUrl}
-															/>
 															<Typography
 																variant='subtitle2'
 																noWrap
@@ -257,32 +275,38 @@ const Products = () => {
 														</Stack>
 													</TableCell>
 													<TableCell align='left'>
-														{company}
+														{code}
 													</TableCell>
 													<TableCell align='left'>
-														{role}
+														{type}
 													</TableCell>
 													<TableCell align='left'>
-														{isVerified
-															? 'Yes'
-															: 'No'}
+														{availability
+															? 'True'
+															: 'False'}
 													</TableCell>
 													<TableCell align='left'>
-														<Label
-															variant='ghost'
-															color={
-																(status ===
-																	'banned' &&
-																	'error') ||
-																'success'
-															}
-														>
-															{sentenceCase(
-																status
-															)}
-														</Label>
+														{needing_repair
+															? 'True'
+															: 'False'}
 													</TableCell>
-
+													<TableCell align='left'>
+														{durability +
+															'/' +
+															max_durability}
+													</TableCell>
+													<TableCell align='left'>
+														{mileage
+															? mileage
+															: 'null'}
+													</TableCell>
+													<TableCell align='left'>
+														{price}
+													</TableCell>
+													<TableCell align='left'>
+														{minimum_rent_period}{' '}
+														Months
+													</TableCell>
 													<TableCell align='right'>
 														<ProductMoreMenu />
 													</TableCell>
@@ -320,7 +344,7 @@ const Products = () => {
 					<TablePagination
 						rowsPerPageOptions={[5, 10, 25]}
 						component='div'
-						count={PRODUCTS.length}
+						count={products.length}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onPageChange={handleChangePage}
