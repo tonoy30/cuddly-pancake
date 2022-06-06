@@ -20,6 +20,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import axios from 'axios';
 import Iconify from 'components/Iconify';
 import Page from 'components/Page';
+import ProductBookOrReturnDialog from 'components/ProductBookOrReturnDialog';
 import Scrollbar from 'components/Scrollbar';
 import SearchNotFound from 'components/SearchNotFound';
 import { filter } from 'lodash';
@@ -31,6 +32,7 @@ import {
 	ProductListToolbar,
 	ProductMoreMenu,
 } from 'sections/@dashboard/product';
+
 const TABLE_HEAD = [
 	{ id: 'name', label: 'Name', alignRight: false },
 	{ id: 'code', label: 'Code', alignRight: false },
@@ -47,6 +49,36 @@ const TABLE_HEAD = [
 	},
 	{ id: '' },
 ];
+const BOOK_STEPS = [
+	{
+		id: '1',
+		title: 'Provide Product Booking Information',
+		isOptional: false,
+		componentName: 'Confirmation',
+	},
+	{
+		id: '2',
+		title: 'Confirm Product Booking',
+		isOptional: false,
+		componentName: 'Confirmation',
+	},
+];
+
+const RETURN_STEPS = [
+	{
+		id: '1',
+		title: 'Provide Product Return Information',
+		isOptional: false,
+		componentName: 'Confirmation',
+	},
+	{
+		id: '2',
+		title: 'Confirm Product Return',
+		isOptional: false,
+		componentName: 'Confirmation',
+	},
+];
+
 function unique(items, key) {
 	const itemsMap = new Map();
 
@@ -95,6 +127,8 @@ function applySortFilter(array, comparator, query) {
 }
 
 const Products = () => {
+	const [openBooking, setOpenBooking] = useState(false);
+	const [openReturn, setOpenReturn] = useState(false);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 	const [count, setCount] = useState(5);
@@ -383,21 +417,35 @@ const Products = () => {
 					spacing={2}
 				>
 					<Button
-						onClick={() => alert('Book Clicked')}
+						onClick={() => setOpenBooking(true)}
 						variant='contained'
-						startIcon={<Iconify icon='eva:plus-fill' />}
+						startIcon={<Iconify icon='eva:lock-outline' />}
 					>
 						Book
 					</Button>
 					<Button
-						onClick={() => alert('Return Clicked')}
+						onClick={() => setOpenReturn(true)}
 						variant='contained'
-						startIcon={<Iconify icon='eva:plus-fill' />}
+						startIcon={<Iconify icon='eva:menu-arrow-outline' />}
 					>
 						Return
 					</Button>
 				</Stack>
 			</Container>
+			<ProductBookOrReturnDialog
+				open={openBooking}
+				handleClose={() => setOpenBooking(false)}
+				title={'Book a Product'}
+				steps={BOOK_STEPS}
+				handleStepperFinished={() => setOpenBooking(false)}
+			/>
+			<ProductBookOrReturnDialog
+				open={openReturn}
+				handleClose={() => setOpenReturn(false)}
+				title={'Return a Product'}
+				steps={RETURN_STEPS}
+				handleStepperFinished={() => setOpenReturn(false)}
+			/>
 		</Page>
 	);
 };
