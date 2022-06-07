@@ -1,4 +1,3 @@
-// material
 import {
 	Alert,
 	AlertTitle,
@@ -23,6 +22,8 @@ import Page from 'components/Page';
 import ProductBookOrReturnDialog from 'components/ProductBookOrReturnDialog';
 import Scrollbar from 'components/Scrollbar';
 import SearchNotFound from 'components/SearchNotFound';
+import { BOOK_STEPS, RETURN_STEPS } from 'config/steps';
+import { TABLE_HEAD } from 'config/table';
 import { filter } from 'lodash';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
@@ -32,52 +33,6 @@ import {
 	ProductListToolbar,
 	ProductMoreMenu,
 } from 'sections/@dashboard/product';
-
-const TABLE_HEAD = [
-	{ id: 'name', label: 'Name', alignRight: false },
-	{ id: 'code', label: 'Code', alignRight: false },
-	{ id: 'type', label: 'Type', alignRight: false },
-	{ id: 'availability', label: 'Availability', alignRight: false },
-	{ id: 'needing_repair', label: 'Need To Repair', alignRight: false },
-	{ id: 'durability', label: 'Durability', alignRight: false },
-	{ id: 'mileage', label: 'Mileage', alignRight: false },
-	{ id: 'price', label: 'Price', alignRight: false },
-	{
-		id: 'minimum_rent_period',
-		label: 'Minimum Rent Period',
-		alignRight: false,
-	},
-	{ id: '' },
-];
-const BOOK_STEPS = [
-	{
-		id: '1',
-		title: 'Provide Product Booking Information',
-		isOptional: false,
-		component: 'ProductBooking',
-	},
-	{
-		id: '2',
-		title: 'Confirm Product Booking',
-		isOptional: false,
-		component: 'Confirmation',
-	},
-];
-
-const RETURN_STEPS = [
-	{
-		id: '1',
-		title: 'Provide Product Return Information',
-		isOptional: false,
-		component: 'Confirmation',
-	},
-	{
-		id: '2',
-		title: 'Confirm Product Return',
-		isOptional: false,
-		component: 'Confirmation',
-	},
-];
 
 function unique(items, key) {
 	const itemsMap = new Map();
@@ -435,7 +390,6 @@ const Products = () => {
 				handleClose={() => setOpenBooking(false)}
 				title={'Book a Product'}
 				steps={BOOK_STEPS}
-				handleStepperNext={() => console.log('handleStepperNext')}
 				handleStepperFinished={() => setOpenBooking(false)}
 			/>
 			<ProductBookOrReturnDialog
@@ -443,7 +397,6 @@ const Products = () => {
 				handleClose={() => setOpenReturn(false)}
 				title={'Return a Product'}
 				steps={RETURN_STEPS}
-				handleStepperNext={() => console.log('handleStepperNext')}
 				handleStepperFinished={() => setOpenReturn(false)}
 			/>
 		</Page>

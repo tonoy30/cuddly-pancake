@@ -4,8 +4,43 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import { styled } from '@mui/material/styles';
 import HorizontalLinearStepper from 'components/HorizontalLinearStepper';
 import React from 'react';
+import Iconify from './Iconify';
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+	'& .MuiDialogContent-root': {
+		padding: theme.spacing(2),
+	},
+	'& .MuiDialogActions-root': {
+		padding: theme.spacing(1),
+	},
+}));
+const BootstrapDialogTitle = (props) => {
+	const { children, onClose, ...other } = props;
+
+	return (
+		<DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+			{children}
+			{onClose ? (
+				<IconButton
+					aria-label='close'
+					onClick={onClose}
+					sx={{
+						position: 'absolute',
+						right: 8,
+						top: 8,
+						color: (theme) => theme.palette.grey[500],
+					}}
+				>
+					<Iconify icon='eva:close-outline' />
+				</IconButton>
+			) : null}
+		</DialogTitle>
+	);
+};
 
 const ProductBookOrReturnDialog = ({
 	open,
@@ -13,25 +48,28 @@ const ProductBookOrReturnDialog = ({
 	steps,
 	handleClose,
 	handleStepperFinished,
-	handleStepperNext,
 	hasActions = false,
 }) => {
 	return (
 		<>
-			<Dialog
+			<BootstrapDialog
 				fullWidth={true}
-				maxWidth={'lg'}
+				maxWidth={'md'}
 				open={open}
 				onClose={handleClose}
 				aria-labelledby='alert-dialog-title'
 				aria-describedby='alert-dialog-description'
 			>
-				<DialogTitle id='alert-dialog-title'>{title}</DialogTitle>
+				<BootstrapDialogTitle
+					id='alert-dialog-title'
+					onClose={handleClose}
+				>
+					{title}
+				</BootstrapDialogTitle>
 				<DialogContent>
 					<Container>
 						<HorizontalLinearStepper
 							steps={steps}
-							handleStepperNext={handleStepperNext}
 							handleStepperFinished={handleStepperFinished}
 						/>
 					</Container>
@@ -44,7 +82,7 @@ const ProductBookOrReturnDialog = ({
 						</Button>
 					</DialogActions>
 				)}
-			</Dialog>
+			</BootstrapDialog>
 		</>
 	);
 };
