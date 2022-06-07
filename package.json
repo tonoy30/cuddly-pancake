@@ -4,6 +4,9 @@
 	"license": "MIT",
 	"version": "0.0.1",
 	"private": false,
+	"engines": {
+		"node": "14.x"
+	},
 	"dependencies": {
 		"@date-io/date-fns": "^2.14.0",
 		"@emotion/react": "^11.9.0",
