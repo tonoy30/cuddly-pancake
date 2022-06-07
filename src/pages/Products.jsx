@@ -17,7 +17,7 @@ import {
 	Typography,
 } from '@mui/material';
 import LinearProgress from '@mui/material/LinearProgress';
-import axios from 'axios';
+import { axiosClient } from 'axiosClient';
 import Iconify from 'components/Iconify';
 import Page from 'components/Page';
 import ProductBookOrReturnDialog from 'components/ProductBookOrReturnDialog';
@@ -134,10 +134,8 @@ const Products = () => {
 	const [count, setCount] = useState(5);
 
 	const fetchProducts = (page, size) =>
-		axios
-			.get(
-				`http://127.0.0.1:8000/products/?page=${page + 1}&size=${size}`
-			)
+		axiosClient
+			.get(`products?page=${page + 1}&size=${size}`)
 			.then((res) => ({
 				data: res.data.results,
 				count: res.data.count,
@@ -363,7 +361,7 @@ const Products = () => {
 													</TableCell>
 													<TableCell align='left'>
 														{minimum_rent_period}{' '}
-														Months
+														Day(s)
 													</TableCell>
 													<TableCell align='right'>
 														<ProductMoreMenu />

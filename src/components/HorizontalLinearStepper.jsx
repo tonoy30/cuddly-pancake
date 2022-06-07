@@ -10,50 +10,28 @@ import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
 import { useFormik } from 'formik';
+import useFetch from 'hooks/useFetch';
 import { nanoid } from 'nanoid';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Confirmation from './Confirmation';
 import DateTimePicker from './DataTimePicker';
-const currencies = [
-	{
-		value: 'None',
-		label: 'None',
-	},
-	{
-		value: 'USD',
-		label: '$',
-	},
-	{
-		value: 'EUR',
-		label: '€',
-	},
-	{
-		value: 'BTC',
-		label: '฿',
-	},
-	{
-		value: 'JPY',
-		label: '¥',
-	},
-];
 
 const HorizontalLinearStepper = ({
 	steps,
 	handleStepperNext,
 	handleStepperFinished,
 }) => {
+	const [products] = useFetch('products?availability=True');
 	const [activeStep, setActiveStep] = useState(0);
 	const [skipped, setSkipped] = useState(new Set());
 	const formik = useFormik({
 		initialValues: {
-			product: 'None',
+			product: '',
 			from: '',
 			to: '',
 		},
-		onSubmit: (values) => {
-			alert(JSON.stringify(values, null, 2));
-		},
 	});
+	useEffect(() => {}, []);
 	const isStepOptional = (step) => {
 		return step.isOptional;
 	};
@@ -72,7 +50,10 @@ const HorizontalLinearStepper = ({
 		setActiveStep((prevActiveStep) => prevActiveStep + 1);
 		setSkipped(newSkipped);
 		handleStepperNext();
-		console.log(formik.values);
+		const val = formik.values['product'];
+		val.rented_at = formik.values['from'];
+		val.returned_at = formik.values['to'];
+		console.log(val);
 	};
 
 	const handleBack = () => {
@@ -152,12 +133,12 @@ const HorizontalLinearStepper = ({
 										name='product'
 										onChange={formik.handleChange}
 									>
-										{currencies.map((option) => (
+										{products.map((option) => (
 											<MenuItem
-												key={option.value}
-												value={option.value}
+												key={nanoid()}
+												value={option}
 											>
-												{option.label}
+												{option.name}
 											</MenuItem>
 										))}
 									</Select>
